@@ -83,25 +83,32 @@ Consul on K8s can be deployed on any K8s distro such as EKS, GKE, and AKS. The f
     kubectl apply -f deny-all.yaml
     ```
 
-3. Deploy NGINX Inc Ingress Controller ([Installation with Helm docs](https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-helm/)).
+3. Update `nginx-ingress-values.yaml` to specify the outbound CIDR of your Kubernetes API Server to exclude from transparent proxy redirection, which NGINX Ingress controller calls via a webhook. The outbound CIDR of your API server may differ on your kubernetes distribution from the example provided within `nginx-ingress-values.yaml`. 
+
+   ```bash
+   # the CIDR of your Kubernetes API: `kubectl get svc kubernetes --output jsonpath='{.spec.clusterIP}'
+   consul.hashicorp.com/transparent-proxy-exclude-outbound-cidrs: "10.20.0.1/32"
+   ```
+
+4. Deploy NGINX Inc Ingress Controller ([Installation with Helm docs](https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-helm/)).
 
     ```bash
     helm upgrade --install nginx-ingress oci://ghcr.io/nginxinc/charts/nginx-ingress --version 0.17.1 --namespace nginx-ingress --create-namespace --values nginx-ingress-values.yaml
     ```
 
-4. Configure ServiceDefaults to enable [DialedDirectly](https://developer.hashicorp.com/consul/docs/connect/config-entries/service-defaults#dialeddirectly) for transparent proxy.
+5. Configure ServiceDefaults to enable [DialedDirectly](https://developer.hashicorp.com/consul/docs/connect/config-entries/service-defaults#dialeddirectly) for transparent proxy.
 
     ```bash
     kubectl apply -f sd-direct.yaml
     ```
 
-5. Set NGINX load balancer IP as an environment variable.
+6. Set NGINX load balancer IP as an environment variable.
 
     ```bash
     export NGINX_INGRESS_IP=$(kubectl get service nginx-ingress-controller -n nginx-ingress -o json | jq -r '.status.loadBalancer.ingress[].ip')
     ```
 
-6. Generate Ingress resource configuration with NGINX load balancer IP.
+7. Generate Ingress resource configuration with NGINX load balancer IP.
 
     ```bash
     cat <<EOF > ingress-resource.yaml
@@ -138,25 +145,25 @@ Consul on K8s can be deployed on any K8s distro such as EKS, GKE, and AKS. The f
     EOF
     ```
 
-7. Configure Ingress config to route traffic to `static-server`.
+8. Configure Ingress config to route traffic to `static-server`.
 
     ```bash
     kubectl apply -f ingress-resource.yaml
     ```
 
-8. Deploy `static-server`. 
+9. Deploy `static-server`. 
 
     ```bash
     kubectl apply -f static-server.yaml
     ```
 
-9. Apply intention from ingress to `static-server`.
+10. Apply intention from ingress to `static-server`.
 
     ```bash
     kubectl apply -f allow-static-server.yaml
     ```
 
-10. Verify connectivity to the backend `static-server` service through NGINX Ingress Controller by making a request to the NGINX hostname for the `static-server` route. 
+11. Verify connectivity to the backend `static-server` service through NGINX Ingress Controller by making a request to the NGINX hostname for the `static-server` route. 
 
     ```bash
     curl ${NGINX_INGRESS_IP}.nip.io
