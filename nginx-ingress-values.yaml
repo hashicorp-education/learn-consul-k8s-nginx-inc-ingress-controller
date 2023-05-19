@@ -1,0 +1,11 @@
+controller:
+  pod:
+    annotations:
+      {
+        consul.hashicorp.com/connect-inject: "true",
+        consul.hashicorp.com/connect-service: "ingress-nginx",
+        consul.hashicorp.com/transparent-proxy: "true",
+        consul.hashicorp.com/transparent-proxy-exclude-inbound-ports: "80,443,8443",
+		# the CIDR of your Kubernetes API: `kubectl get svc kubernetes --output jsonpath='{.spec.clusterIP}'
+        consul.hashicorp.com/transparent-proxy-exclude-outbound-cidrs: "10.20.0.1/32"
+      }
