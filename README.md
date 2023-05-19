@@ -83,7 +83,7 @@ Consul on K8s can be deployed on any K8s distro such as EKS, GKE, and AKS. The f
     kubectl apply -f deny-all.yaml
     ```
 
-3. Deploy NGINX Inc Ingress Controller ([ingress-nginx](https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-helm/)).
+3. Deploy NGINX Inc Ingress Controller ([Installation with Helm docs](https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-helm/)).
 
     ```bash
     helm upgrade --install nginx-ingress oci://ghcr.io/nginxinc/charts/nginx-ingress --version 0.17.1 --namespace nginx-ingress --create-namespace --values nginx-ingress-values.yaml
@@ -156,7 +156,7 @@ Consul on K8s can be deployed on any K8s distro such as EKS, GKE, and AKS. The f
     kubectl apply -f allow-static-server.yaml
     ```
 
-10. Verify NGINX ingress by making a request to the NGINX hostname for the `static-server` route. 
+10. Verify connectivity to the backend `static-server` service through NGINX Ingress Controller by making a request to the NGINX hostname for the `static-server` route. 
 
     ```bash
     curl ${NGINX_INGRESS_IP}.nip.io
